@@ -1,0 +1,38 @@
+{
+  "name": "@sustainer-network/TODO=<some-command>-command-handler-function",
+  "version": "0.0.0",
+  "dependencies": {
+    "@sustainer-network/TODO=<some-command>-command-handler": "*",
+    "@sustainer-network/tokens-from-req": "*",
+    "@sustainer-network/event-store-js": "*",
+    "@sustainer-network/errors": "*"
+  },
+  "scripts": {
+    "precommit": "lint-staged && yarn checkbuild",
+    "test": "mocha --recursive  --timeout 10000",
+    "checkbuild": "./.checkbuild.sh"
+  },
+  "devDependencies": {
+    "@sustainer-network/request": "*",
+    "@sustainer-network/datetime": "*",
+    "mocha": "^6.1.4",
+    "chai": "^4.2.0",
+    "eslint": "^5.16.0",
+    "eslint-config-prettier": "^4.1.0",
+    "eslint-plugin-import": "^2.17.2",
+    "husky": "^1.3.1",
+    "prettier-eslint-cli": "^4.7.1",
+    "lint-staged": "^8.1.7"
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "prettier-eslint --write",
+      "git add"
+    ],
+    "*.json": [
+      "prettier-eslint --write",
+      "git add"
+    ]
+  }
+}
