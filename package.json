@@ -1,11 +1,8 @@
 {
-  "name": "@sustainer-network/TODO=<some-command>-command-handler-function",
+  "name": "@sustainer-network/core-gateway",
   "version": "0.0.0",
   "dependencies": {
-    "@sustainer-network/TODO=<some-command>-command-handler": "*",
-    "@sustainer-network/tokens-from-req": "*",
-    "@sustainer-network/event-store-js": "*",
-    "@sustainer-network/errors": "*"
+    "@sustainers/logger": "*"
   },
   "scripts": {
     "precommit": "lint-staged && yarn checkbuild",
@@ -13,8 +10,6 @@
     "checkbuild": "./.checkbuild.sh"
   },
   "devDependencies": {
-    "@sustainer-network/request": "*",
-    "@sustainer-network/datetime": "*",
     "mocha": "^6.1.4",
     "chai": "^4.2.0",
     "eslint": "^5.16.0",

@@ -1,13 +1,29 @@
-const commandHandler = require("@sustainer-network/TODO=<some-command>-command-handler");
-const tokensFromReq = require("@sustainer-network/tokens-from-req");
-const eventStore = require("@sustainer-network/event-store-js");
+// const authenticate = require("@sustainers/authenticate");
+// const validate = require("@sustainers/validate");
+// const forward = require("@sustainers/forward");
+const logger = require("@sustainers/logger");
 
 exports.command = (req, res) => {
-  commandHandler({
-    params: req.body,
-    tokens: tokensFromReq(req),
-    publishEventFn: eventStore.add
-  })
-    .then(response => res.send(response))
-    .catch(e => res.status(e.statusCode).send(e));
+  logger.info("Request: ", {
+    params: req.params,
+    body: req.body,
+    query: req.query,
+    headers: req.headers
+  });
+  res.send("🍑");
+  //Makes sure the request should be respected.
+  // //** easy */
+  // authorize(req)
+  //   //Makes sure the scopes of the token matches the scopes of the function.
+  //   //** need a map for routes:scopes, easy to make static */
+  //   .then(() => authenticate(req))
+  //   //Makes sure the payload and headers are composed correctly.
+  //   //** need a map for routes:validation hard */
+  //   .then(() => validate(req))
+  //   //Forward request to the correct internal service.
+  //   .then(() => forward(req))
+  //   //Send the response if all is good.
+  //   .then(response => res.send(response))
+  //   //Send the error if something went wrong along the way.
+  //   .catch(e => res.status(e.statusCode).send(e));
 };

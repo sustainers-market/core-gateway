@@ -1,24 +1,27 @@
 {
   "substitutions": {
-    "_TITLE": "[TODO=<Title case descriptor for documentation, like Change Account Email>]",
-    "_ACTION": "[TODO=<hyphen-seperated-action>, like change-email>]",
-    "_DOMAIN": "[TODO=<hyphen-seperated-unique-domain, like account or service-request>]",
-    "_SERVICE": "[TODO=<hyphen-seperated-unique-service, like roof or core>]",
-    "_NETWORK": "sustainer.network",
-    "_GCP_PROJECT": "sustainernetwork",
+    "_SERVICE": "core",
+    "_NETWORK": "sustainers.network",
+    "_GCP_PROJECT": "sustainers-market-services",
     "_GCP_REGION": "us-central1",
     "_GCP_DNS_ZONE": "network",
-    "_TYPE": "command",
-    "_ESP_OPTIONS": "--cors_preset=basic,--cors_allow_methods=POST,--cors_allow_headers=Authorization Content-Type,--cors_allow_credentials",
-    "_MEMORY": "128MB"
+    "_MEMORY": "128Mi"
   },
   "steps": [
     {
-      "name": "gcr.io/cloud-builders/gcloud",
+      "name": "gcr.io/cloud-builders/docker",
       "entrypoint": "bash",
       "args": [
         "-c",
-        "gcloud functions deploy staging-${_SERVICE}-${_DOMAIN}-${_ACTION}-${_TYPE} --trigger-http --memory=${_MEMORY} --runtime=nodejs10 --entry-point=command --project=${_GCP_PROJECT} --region=${_GCP_REGION} --set-env-vars=NODE_ENV=staging,NETWORK=${_NETWORK}"
+        "docker build -t us.gcr.io/staging-${_GCP_PROJECT}/gateway.${_SERVICE} ."
+      ]
+    },
+    {
+      "name": "gcr.io/cloud-builders/docker",
+      "entrypoint": "bash",
+      "args": [
+        "-c",
+        "docker push us.gcr.io/staging-${_GCP_PROJECT}/gateway.${_SERVICE}"
       ]
     },
     {
@@ -26,7 +29,7 @@
       "entrypoint": "bash",
       "args": [
         "-c",
-        "gcloud beta run deploy staging-${_SERVICE}-${_DOMAIN}-${_ACTION}-${_TYPE} --image=gcr.io/endpoints-release/endpoints-runtime-serverless:1.36.0 --allow-unauthenticated --project=${_GCP_PROJECT} --region=${_GCP_REGION} --platform=managed"
+        "gcloud beta run deploy ${_SERVICE}-gateway --image=us.gcr.io/staging-${_GCP_PROJECT}/gateway.${_SERVICE} --platform=managed --memory=${_MEMORY} --allow-unauthenticated --project=staging-${_GCP_PROJECT} --region=${_GCP_REGION} --set-env-vars=NODE_ENV=staging,NETWORK=${_NETWORK},SERVICE=${_SERVICE},GCP_PROJECT=${_GCP_PROJECT},GCP_REGION=${_GCP_REGION}"
       ]
     },
     {
@@ -42,7 +45,7 @@
       "entrypoint": "bash",
       "args": [
         "-c",
-        "gcloud beta dns record-sets transaction add ghs.googlehosted.com. --name=${_ACTION}.${_DOMAIN}.${_SERVICE}.staging.${_NETWORK} --zone=${_GCP_DNS_ZONE} --type=CNAME --ttl=300 --project=${_GCP_PROJECT}"
+        "gcloud beta dns record-sets transaction add ghs.googlehosted.com. --name=.${_SERVICE}.staging.${_NETWORK} --zone=${_GCP_DNS_ZONE} --type=CNAME --ttl=300 --project=${_GCP_PROJECT}"
       ]
     },
     {
@@ -66,7 +69,7 @@
       "entrypoint": "bash",
       "args": [
         "-c",
-        "gcloud beta run domain-mappings create --platform=managed --service=staging-${_SERVICE}-${_DOMAIN}-${_ACTION}-${_TYPE} --domain=${_ACTION}.${_DOMAIN}.${_SERVICE}.staging.${_NETWORK} --project=${_GCP_PROJECT} --region=${_GCP_REGION} || exit 0"
+        "gcloud beta run domain-mappings create --platform=managed --service=${_SERVICE}-gateway --domain=${_SERVICE}.staging.${_NETWORK} --project=staging-${_GCP_PROJECT} --region=${_GCP_REGION} || exit 0"
       ]
     },
     {
@@ -74,7 +77,7 @@
       "entrypoint": "bash",
       "args": [
         "-c",
-        "sed -e 's/#_NAME/staging-${_SERVICE}-${_DOMAIN}-${_ACTION}-${_TYPE}/g; s/#_HOST/${_ACTION}.${_DOMAIN}.${_SERVICE}.staging.${_NETWORK}/g; s/#_GCP_PROJECT/${_GCP_PROJECT}/g; s/#_GCP_REGION/${_GCP_REGION}/g; s/#_TITLE/Staging ${_TITLE}/g' doc.json > doc.staging.json"
+        "gcloud pubsub topics create did-start.operation.${_SERVICE} --project=staging-${_GCP_PROJECT} || exit 0"
       ]
     },
     {
@@ -82,31 +85,7 @@
       "entrypoint": "bash",
       "args": [
         "-c",
-        "gcloud endpoints services deploy /workspace/doc.staging.json --project=${_GCP_PROJECT} || exit 0"
-      ]
-    },
-    {
-      "name": "gcr.io/cloud-builders/gcloud",
-      "entrypoint": "bash",
-      "args": [
-        "-c",
-        "gcloud beta run services update staging-${_SERVICE}-${_DOMAIN}-${_ACTION}-${_TYPE} --platform=managed --project=${_GCP_PROJECT} --region=${_GCP_REGION} --set-env-vars=\"^|^ENDPOINTS_SERVICE_NAME=${_ACTION}.${_DOMAIN}.${_SERVICE}.staging.${_NETWORK}|ESP_ARGS=--rollout_strategy=managed,${_ESP_OPTIONS}\""
-      ]
-    },
-    {
-      "name": "gcr.io/cloud-builders/gcloud",
-      "entrypoint": "bash",
-      "args": [
-        "-c",
-        "gcloud beta functions add-iam-policy-binding staging-${_SERVICE}-${_DOMAIN}-${_ACTION}-${_TYPE} --member serviceAccount:31066734336-compute@developer.gserviceaccount.com --role roles/cloudfunctions.invoker"
-      ]
-    },
-    {
-      "name": "gcr.io/cloud-builders/gcloud",
-      "entrypoint": "bash",
-      "args": [
-        "-c",
-        "gcloud pubsub topics create did-${_ACTION}.${_DOMAIN}.${_SERVICE}.staging --project=${_GCP_PROJECT} || exit 0"
+        "gcloud pubsub topics create did-finish.operation.${_SERVICE} --project=staging-${_GCP_PROJECT} || exit 0"
       ]
     },
     {
@@ -118,102 +97,6 @@
       "name": "node:10.16.0",
       "entrypoint": "yarn",
       "args": ["test"]
-    },
-    {
-      "name": "gcr.io/cloud-builders/gcloud",
-      "entrypoint": "bash",
-      "args": [
-        "-c",
-        "gcloud functions deploy ${_SERVICE}-${_DOMAIN}-${_ACTION}-${_TYPE} --trigger-http --memory=${_MEMORY} --runtime=nodejs10 --entry-point=command --set-env-vars=NODE_ENV=production,NETWORK=${_NETWORK}"
-      ]
-    },
-    {
-      "name": "gcr.io/cloud-builders/gcloud",
-      "entrypoint": "bash",
-      "args": [
-        "-c",
-        "gcloud beta run deploy ${_SERVICE}-${_DOMAIN}-${_ACTION}-${_TYPE} --image=gcr.io/endpoints-release/endpoints-runtime-serverless:1.36.0 --allow-unauthenticated --project=${_GCP_PROJECT} --platform=managed --region=${_GCP_REGION}"
-      ]
-    },
-    {
-      "name": "gcr.io/cloud-builders/gcloud",
-      "entrypoint": "bash",
-      "args": [
-        "-c",
-        "gcloud beta dns record-sets transaction start --zone=${_GCP_DNS_ZONE} --project=${_GCP_PROJECT} || exit 0"
-      ]
-    },
-    {
-      "name": "gcr.io/cloud-builders/gcloud",
-      "entrypoint": "bash",
-      "args": [
-        "-c",
-        "gcloud beta dns record-sets transaction add ghs.googlehosted.com. --name=${_ACTION}.${_DOMAIN}.${_SERVICE}.${_NETWORK} --zone=${_GCP_DNS_ZONE} --type=CNAME --ttl=300 --project=${_GCP_PROJECT}"
-      ]
-    },
-    {
-      "name": "gcr.io/cloud-builders/gcloud",
-      "entrypoint": "bash",
-      "args": [
-        "-c",
-        "gcloud beta dns record-sets transaction execute --zone=${_GCP_DNS_ZONE} --project=${_GCP_PROJECT} || exit 0"
-      ]
-    },
-    {
-      "name": "gcr.io/cloud-builders/gcloud",
-      "entrypoint": "bash",
-      "args": [
-        "-c",
-        "gcloud beta dns record-sets transaction abort --zone=${_GCP_DNS_ZONE} --project=${_GCP_PROJECT} || exit 0"
-      ]
-    },
-    {
-      "name": "gcr.io/cloud-builders/gcloud",
-      "entrypoint": "bash",
-      "args": [
-        "-c",
-        "gcloud beta run domain-mappings create --platform=managed --service=${_SERVICE}-${_DOMAIN}-${_ACTION}-${_TYPE} --domain=${_ACTION}.${_DOMAIN}.${_SERVICE}.${_NETWORK} --project=${_GCP_PROJECT} --region=${_GCP_REGION} || exit 0"
-      ]
-    },
-    {
-      "name": "gcr.io/cloud-builders/gcloud",
-      "entrypoint": "bash",
-      "args": [
-        "-c",
-        "sed -e 's/#_NAME/${_SERVICE}-${_DOMAIN}-${_ACTION}-${_TYPE}/g; s/#_HOST/${_ACTION}.${_DOMAIN}.${_SERVICE}.${_NETWORK}/g; s/#_GCP_PROJECT/${_GCP_PROJECT}/g; s/#_GCP_REGION/${_GCP_REGION}/g; s/#_TITLE/${_TITLE}/g' doc.json > doc.production.json"
-      ]
-    },
-    {
-      "name": "gcr.io/cloud-builders/gcloud",
-      "entrypoint": "bash",
-      "args": [
-        "-c",
-        "gcloud endpoints services deploy /workspace/doc.production.json --project=${_GCP_PROJECT} || exit 0"
-      ]
-    },
-    {
-      "name": "gcr.io/cloud-builders/gcloud",
-      "entrypoint": "bash",
-      "args": [
-        "-c",
-        "gcloud beta run services update ${_SERVICE}-${_DOMAIN}-${_ACTION}-${_TYPE} --platform=managed  --project=${_GCP_PROJECT} --region=${_GCP_REGION} --set-env-vars=\"^|^ENDPOINTS_SERVICE_NAME=${_ACTION}.${_DOMAIN}.${_SERVICE}.${_NETWORK}|ESP_ARGS=--rollout_strategy=managed,${_ESP_OPTIONS}\""
-      ]
-    },
-    {
-      "name": "gcr.io/cloud-builders/gcloud",
-      "entrypoint": "bash",
-      "args": [
-        "-c",
-        "gcloud beta functions add-iam-policy-binding ${_SERVICE}-${_DOMAIN}-${_ACTION}-${_TYPE} --member serviceAccount:31066734336-compute@developer.gserviceaccount.com --role roles/cloudfunctions.invoker --project=${_GCP_PROJECT} --region=${_GCP_REGION}"
-      ]
-    },
-    {
-      "name": "gcr.io/cloud-builders/gcloud",
-      "entrypoint": "bash",
-      "args": [
-        "-c",
-        "gcloud pubsub topics create did-${_ACTION}.${_DOMAIN}.${_SERVICE} --project=${_GCP_PROJECT} || exit 0"
-      ]
     }
   ]
 }
