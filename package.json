@@ -2,12 +2,14 @@
   "name": "@sustainer-network/core-gateway",
   "version": "0.0.0",
   "dependencies": {
+    "express": "^4.17.1",
     "@sustainers/logger": "*"
   },
+  "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "precommit": "lint-staged && yarn checkbuild",
-    "test": "mocha --recursive  --timeout 10000",
-    "checkbuild": "./.checkbuild.sh"
+    "test": "mocha --recursive  --timeout 10000"
   },
   "devDependencies": {
     "mocha": "^6.1.4",
