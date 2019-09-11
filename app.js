@@ -29,7 +29,7 @@ app.get("/", (req, res) => {
   res.send("🍌");
 });
 
-app.post("/service.create", (req, res) => {
+app.post("/create.service", (req, res) => {
   logger.info("Request: ", {
     params: req.params,
     body: req.body,
