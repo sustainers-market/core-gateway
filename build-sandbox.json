@@ -119,7 +119,7 @@
       "entrypoint": "bash",
       "args": [
         "-c",
-        "gcloud beta run deploy ${_SERVICE}-gateway --image=us.gcr.io/${_GCP_PROJECT}-sandbox/gateway.${_SERVICE} --platform=managed --memory=${_MEMORY} --allow-unauthenticated --project=${_GCP_PROJECT}-staging --region=${_GCP_REGION} --set-env-vars=NODE_ENV=staging,NETWORK=${_NETWORK},SERVICE=${_SERVICE},GCP_PROJECT=${_GCP_PROJECT},GCP_REGION=${_GCP_REGION}"
+        "gcloud beta run deploy ${_SERVICE}-gateway --image=us.gcr.io/${_GCP_PROJECT}-sandbox/gateway.${_SERVICE} --platform=managed --memory=${_MEMORY} --allow-unauthenticated --project=${_GCP_PROJECT}-staging --region=${_GCP_REGION} --set-env-vars=NODE_ENV=sandbox,NETWORK=${_NETWORK},SERVICE=${_SERVICE},GCP_PROJECT=${_GCP_PROJECT},GCP_REGION=${_GCP_REGION}"
       ]
     },
     {

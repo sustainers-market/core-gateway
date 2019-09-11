@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "dependencies": {
     "express": "^4.17.1",
-    "@sustainers/logger": "*"
+    "@sustainers/logger": "*",
+    "@sustainers/command-middleware": "*"
   },
   "main": "index.js",
   "scripts": {
