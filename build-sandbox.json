@@ -135,7 +135,7 @@
       "entrypoint": "bash",
       "args": [
         "-c",
-        "gcloud beta dns record-sets transaction add ghs.googlehosted.com. --name=${_SERVICE}.s.${_NETWORK} --zone=${_GCP_DNS_ZONE} --type=CNAME --ttl=86400 --project=${_GCP_PROJECT}"
+        "gcloud beta dns record-sets transaction add ghs.googlehosted.com. --name=${_SERVICE}.sandbox.${_NETWORK} --zone=${_GCP_DNS_ZONE} --type=CNAME --ttl=86400 --project=${_GCP_PROJECT}"
       ]
     },
     {
