@@ -1,13 +1,23 @@
 const express = require("express");
+const cors = require("cors");
+const bodyParser = require("body-parser");
 const app = express();
 
 // const authenticate = require("@sustainers/authenticate");
 // const validate = require("@sustainers/validate");
 // const forward = require("@sustainers/forward");
 const logger = require("@sustainers/logger");
-const middleware = require("@sustainers/command-middleware");
 
-middleware(app);
+app.use(
+  cors({
+    origin: "*",
+    methods: "GET,POST",
+    preflightContinue: false,
+    optionsSuccessStatus: 204
+  })
+);
+app.use(bodyParser.json());
+app.options("*", cors());
 
 app.get("/", (req, res) => {
   logger.info("Request: ", {
