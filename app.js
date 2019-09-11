@@ -19,14 +19,17 @@ app.get("/", (req, res) => {
   res.send("🍌");
 });
 
-app.post("/", (req, res) => {
+app.post("/service.create", (req, res) => {
   logger.info("Request: ", {
     params: req.params,
     body: req.body,
     query: req.query,
     headers: req.headers
   });
-  res.send("🍑");
+  res.send({
+    token:
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+  });
   //Makes sure the request should be respected.
   // //** easy */
   // authorize(req)
