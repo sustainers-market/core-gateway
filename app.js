@@ -45,7 +45,7 @@ app.post("/command/:domain/:action", (req, res) => {
         .in(context)
     )
     .then(response => res.send(response))
-    .catch(e => res.status(e.statusCode).send(e));
+    .catch(e => res.status(e.statusCode || 500).send(e));
 });
 
 app.post("/create.service", (req, res) => {
