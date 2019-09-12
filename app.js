@@ -19,7 +19,7 @@ app.use(
 app.use(bodyParser.json());
 app.options("*", cors());
 
-app.post("/command/:domain/:action", (req, res) => {
+app.post("/command/:domain/:action", async (req, res) => {
   logger.info("Request: ", {
     params: req.params,
     body: req.body,
@@ -27,7 +27,7 @@ app.post("/command/:domain/:action", (req, res) => {
     headers: req.headers
   });
 
-  authorize({
+  const context = await authorize({
     req,
     verifyFn: kms.verify,
     scopesLookupFn: principle => {
@@ -35,20 +35,20 @@ app.post("/command/:domain/:action", (req, res) => {
     },
     domain: req.params.domain,
     requiresToken: false
+  });
+
+  logger.info("context: ", { context });
+
+  const response = await issueCommand({
+    action: params.action,
+    domain: params.domain
   })
-    .then(({ context }) =>
-      issueCommand({
-        action: params.action,
-        domain: params.domain
-      })
-        .with(req.body.payload, req.body.header)
-        .in(context)
-    )
-    .then(response => res.send(response))
-    .catch(e => {
-      logger.error("ee: ", { err });
-      res.status(e.statusCode || 500).send(e);
-    });
+    .with(req.body.payload, req.body.header)
+    .in(context);
+
+  logger.info("response: ", { response });
+
+  res.send(response);
 });
 
 app.post("/create.service", (req, res) => {
