@@ -2,6 +2,7 @@
   "substitutions": {
     "_SERVICE": "core",
     "_NETWORK": "sm.network",
+    "_INTERNAL_NETWORK": "sm.services",
     "_GCP_PROJECT": "smn-core",
     "_GCP_REGION": "us-central1",
     "_GCP_DNS_ZONE": "network",
@@ -29,7 +30,7 @@
       "entrypoint": "bash",
       "args": [
         "-c",
-        "gcloud beta run deploy ${_SERVICE}-gateway --image=us.gcr.io/${_GCP_PROJECT}-staging/gateway.${_SERVICE} --platform=managed --memory=${_MEMORY} --allow-unauthenticated --project=${_GCP_PROJECT}-staging --region=${_GCP_REGION} --set-env-vars=NODE_ENV=staging,NETWORK=${_NETWORK},SERVICE=${_SERVICE},GCP_PROJECT=${_GCP_PROJECT},GCP_REGION=${_GCP_REGION}"
+        "gcloud beta run deploy ${_SERVICE}-gateway --image=us.gcr.io/${_GCP_PROJECT}-staging/gateway.${_SERVICE} --platform=managed --memory=${_MEMORY} --allow-unauthenticated --project=${_GCP_PROJECT}-staging --region=${_GCP_REGION} --set-env-vars=NODE_ENV=staging,INTERNAL_NETWORK=${_INTERNAL_NETWORK},NETWORK=${_NETWORK},SERVICE=${_SERVICE},GCP_PROJECT=${_GCP_PROJECT},GCP_REGION=${_GCP_REGION}"
       ]
     },
     {
@@ -119,7 +120,7 @@
       "entrypoint": "bash",
       "args": [
         "-c",
-        "gcloud beta run deploy ${_SERVICE}-gateway --image=us.gcr.io/${_GCP_PROJECT}-sandbox/gateway.${_SERVICE} --platform=managed --memory=${_MEMORY} --allow-unauthenticated --project=${_GCP_PROJECT}-sandbox --region=${_GCP_REGION} --set-env-vars=NODE_ENV=sandbox,NETWORK=${_NETWORK},SERVICE=${_SERVICE},GCP_PROJECT=${_GCP_PROJECT},GCP_REGION=${_GCP_REGION}"
+        "gcloud beta run deploy ${_SERVICE}-gateway --image=us.gcr.io/${_GCP_PROJECT}-sandbox/gateway.${_SERVICE} --platform=managed --memory=${_MEMORY} --allow-unauthenticated --project=${_GCP_PROJECT}-sandbox --region=${_GCP_REGION} --set-env-vars=NODE_ENV=sandbox,INTERNAL_NETWORK=${_INTERNAL_NETWORK},NETWORK=${_NETWORK},SERVICE=${_SERVICE},GCP_PROJECT=${_GCP_PROJECT},GCP_REGION=${_GCP_REGION}"
       ]
     },
     {

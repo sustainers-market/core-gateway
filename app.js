@@ -1,23 +1,16 @@
 const express = require("express");
-const cors = require("cors");
-const bodyParser = require("body-parser");
 const app = express();
 
 const authorize = require("@sustainers/authorize");
+const verifyCommand = require("@sustainers/verify-command");
+const cleanCommand = require("@sustainers/clean-command");
 const kms = require("@sustainers/kms");
 const issueCommand = require("@sustainers/issue-command-js");
 const logger = require("@sustainers/logger");
 
-app.use(
-  cors({
-    origin: "*",
-    methods: "GET,POST",
-    preflightContinue: false,
-    optionsSuccessStatus: 204
-  })
-);
-app.use(bodyParser.json());
-app.options("*", cors());
+const middleware = require("./src/middleware");
+
+middleware(app);
 
 app.post("/command/:domain/:action", async (req, res) => {
   logger.info("Request: ", {
@@ -30,24 +23,22 @@ app.post("/command/:domain/:action", async (req, res) => {
   const context = await authorize({
     req,
     verifyFn: kms.verify,
-    scopesLookupFn: principle => {
-      return [];
-    },
+    scopesLookupFn: () => [],
     domain: req.params.domain,
     requiresToken: false
   });
-
   logger.info("context: ", { context });
-
+  await verifyCommand(req.body);
+  await cleanCommand(req.body);
   const response = await issueCommand({
     action: req.params.action,
-    domain: req.params.domain
+    domain: req.params.domain,
+    service: process.env.SERVICE,
+    network: process.env.NETWORK
   })
     .with(req.body.payload, req.body.header)
     .in(context);
-
   logger.info("response: ", { response });
-
   res.send(response);
 });
 

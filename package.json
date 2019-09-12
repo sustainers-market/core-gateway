@@ -8,6 +8,7 @@
     "@sustainers/logger": "*",
     "@sustainers/kms": "*",
     "@sustainers/issue-command-js": "*",
+    "@sustainers/": "*",
     "@sustainers/authorize": "*"
   },
   "main": "index.js",
