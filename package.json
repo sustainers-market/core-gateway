@@ -8,7 +8,8 @@
     "@sustainers/logger": "*",
     "@sustainers/kms": "*",
     "@sustainers/issue-command-js": "*",
-    "@sustainers/": "*",
+    "@sustainers/validate-command": "*",
+    "@sustainers/clean-command": "*",
     "@sustainers/authorize": "*"
   },
   "main": "index.js",
