@@ -33,7 +33,7 @@ app.post("/command/:domain/:action", (req, res) => {
     scopesLookupFn: principle => {
       return [];
     },
-    domain: params.domain,
+    domain: req.params.domain,
     requiresToken: false
   })
     .then(({ context }) =>
