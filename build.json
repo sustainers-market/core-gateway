@@ -1,7 +1,7 @@
 {
   "substitutions": {
     "_SERVICE": "core",
-    "_NETWORK": "sustainers.network",
+    "_NETWORK": "sm.network",
     "_GCP_PROJECT": "smn-core",
     "_GCP_REGION": "us-central1",
     "_GCP_DNS_ZONE": "network",
@@ -119,7 +119,7 @@
       "entrypoint": "bash",
       "args": [
         "-c",
-        "gcloud beta run deploy ${_SERVICE}-gateway --image=us.gcr.io/${_GCP_PROJECT}/gateway.${_SERVICE} --platform=managed --memory=${_MEMORY} --allow-unauthenticated --project=${_GCP_PROJECT}-staging --region=${_GCP_REGION} --set-env-vars=NODE_ENV=staging,NETWORK=${_NETWORK},SERVICE=${_SERVICE},GCP_PROJECT=${_GCP_PROJECT},GCP_REGION=${_GCP_REGION}"
+        "gcloud beta run deploy ${_SERVICE}-gateway --image=us.gcr.io/${_GCP_PROJECT}/gateway.${_SERVICE} --platform=managed --memory=${_MEMORY} --allow-unauthenticated --project=${_GCP_PROJECT} --region=${_GCP_REGION} --set-env-vars=NODE_ENV=sandbox,NETWORK=${_NETWORK},SERVICE=${_SERVICE},GCP_PROJECT=${_GCP_PROJECT},GCP_REGION=${_GCP_REGION}"
       ]
     },
     {
@@ -135,7 +135,7 @@
       "entrypoint": "bash",
       "args": [
         "-c",
-        "gcloud beta dns record-sets transaction add ghs.googlehosted.com. --name=${_SERVICE}.staging.${_NETWORK} --zone=${_GCP_DNS_ZONE} --type=CNAME --ttl=86400 --project=${_GCP_PROJECT}"
+        "gcloud beta dns record-sets transaction add ghs.googlehosted.com. --name=${_SERVICE}.${_NETWORK} --zone=${_GCP_DNS_ZONE} --type=CNAME --ttl=86400 --project=${_GCP_PROJECT}"
       ]
     },
     {
@@ -159,7 +159,7 @@
       "entrypoint": "bash",
       "args": [
         "-c",
-        "gcloud beta run domain-mappings create --platform=managed --service=${_SERVICE}-gateway --domain=${_SERVICE}.staging.${_NETWORK} --project=${_GCP_PROJECT} --region=${_GCP_REGION} || exit 0"
+        "gcloud beta run domain-mappings create --platform=managed --service=${_SERVICE}-gateway --domain=${_SERVICE}.${_NETWORK} --project=${_GCP_PROJECT} --region=${_GCP_REGION} || exit 0"
       ]
     },
     {
@@ -175,7 +175,7 @@
       "entrypoint": "bash",
       "args": [
         "-c",
-        "gcloud pubsub topics create did-finish-operation.${_SERVICE} --project=${_GCP_PROJECT} || exit 0"
+        "gcloud pubsub topics create did-finish-operation.${_SERVICE} --project=${_GCP_PROJECT}-sandbox || exit 0"
       ]
     }
   ]
