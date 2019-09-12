@@ -40,8 +40,8 @@ app.post("/command/:domain/:action", async (req, res) => {
   logger.info("context: ", { context });
 
   const response = await issueCommand({
-    action: body.params.action,
-    domain: body.params.domain
+    action: req.params.action,
+    domain: req.params.domain
   })
     .with(req.body.payload, req.body.header)
     .in(context);
