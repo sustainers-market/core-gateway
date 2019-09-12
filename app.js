@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 
 const authorize = require("@sustainers/authorize");
-const verifyCommand = require("@sustainers/verify-command");
+const validateCommand = require("@sustainers/validate-command");
 const cleanCommand = require("@sustainers/clean-command");
 const kms = require("@sustainers/kms");
 const issueCommand = require("@sustainers/issue-command-js");
@@ -28,7 +28,7 @@ app.post("/command/:domain/:action", async (req, res) => {
     requiresToken: false
   });
   logger.info("context: ", { context });
-  await verifyCommand(req.body);
+  await validateCommand(req.body);
   await cleanCommand(req.body);
   const response = await issueCommand({
     action: req.params.action,
