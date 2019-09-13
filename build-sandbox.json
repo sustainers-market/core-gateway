@@ -161,7 +161,7 @@
       "entrypoint": "bash",
       "args": [
         "-c",
-        "gcloud pubsub topics create did-start-operation.${_SERVICE} --project=${_GCP_PROJECT}-sandbox || exit 0"
+        "gcloud pubsub topics create did-start-operation --project=${_GCP_PROJECT}-sandbox || exit 0"
       ]
     },
     {
@@ -169,7 +169,7 @@
       "entrypoint": "bash",
       "args": [
         "-c",
-        "gcloud pubsub topics create did-finish-operation.${_SERVICE} --project=${_GCP_PROJECT}-sandbox || exit 0"
+        "gcloud pubsub topics create did-finish-operation --project=${_GCP_PROJECT}-sandbox || exit 0"
       ]
     }
   ]
