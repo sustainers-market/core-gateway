@@ -9,6 +9,7 @@
     "@sustainers/kms": "*",
     "@sustainers/issue-command-js": "*",
     "@sustainers/validate-command": "*",
+    "@sustainers/middleware": "*",
     "@sustainers/clean-command": "*",
     "@sustainers/authorize": "*"
   },

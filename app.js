@@ -7,9 +7,11 @@ const cleanCommand = require("@sustainers/clean-command");
 const kms = require("@sustainers/kms");
 const issueCommand = require("@sustainers/issue-command-js");
 const logger = require("@sustainers/logger");
+const middleware = require("@sustainers/middleware");
 
-const middleware = require("./src/middleware");
+const cors = require("./src/cors");
 
+cors(app);
 middleware(app);
 
 app.post("/command/:domain/:action", async (req, res) => {
