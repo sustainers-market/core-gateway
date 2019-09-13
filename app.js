@@ -11,10 +11,7 @@ const logger = require("@sustainers/logger");
 const middleware = require("@sustainers/middleware");
 
 const cors = require("./src/cors");
-
-const asyncMiddleware = fn => (req, res, next) => {
-  Promise.resolve(fn(req, res, next)).catch(next);
-};
+const errorHandler = require("./src/error_handler");
 
 cors(app);
 middleware(app);
@@ -52,7 +49,7 @@ app.post(
   })
 );
 
-app.post("/create.service", (req, res, next) => {
+app.post("/create.service", (req, res) => {
   logger.info("Request: ", {
     params: req.params,
     body: req.body,
@@ -65,11 +62,6 @@ app.post("/create.service", (req, res, next) => {
   });
 });
 
-//Handle errors.
-app.use((err, _, res, next) => {
-  if (res.headersSent) return next(err);
-  logger.error("An error occured: ", { err, stack: err.stack });
-  res.status(500).send(err);
-});
+errorHandler(app);
 
 module.exports = app;

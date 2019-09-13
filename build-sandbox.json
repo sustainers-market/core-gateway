@@ -2,7 +2,6 @@
   "substitutions": {
     "_SERVICE": "core",
     "_NETWORK": "sm.network",
-    "_INTERNAL_NETWORK": "sm.services",
     "_GCP_PROJECT": "smn-core",
     "_GCP_REGION": "us-central1",
     "_GCP_DNS_ZONE": "network",
@@ -14,23 +13,20 @@
       "entrypoint": "bash",
       "args": [
         "-c",
-        "docker build -t us.gcr.io/${_GCP_PROJECT}-staging/gateway.${_SERVICE} ."
+        "docker build -t us.gcr.io/${_GCP_PROJECT}-staging/gateway ."
       ]
     },
     {
       "name": "gcr.io/cloud-builders/docker",
       "entrypoint": "bash",
-      "args": [
-        "-c",
-        "docker push us.gcr.io/${_GCP_PROJECT}-staging/gateway.${_SERVICE}"
-      ]
+      "args": ["-c", "docker push us.gcr.io/${_GCP_PROJECT}-staging/gateway"]
     },
     {
       "name": "gcr.io/cloud-builders/gcloud",
       "entrypoint": "bash",
       "args": [
         "-c",
-        "gcloud beta run deploy ${_SERVICE}-gateway --image=us.gcr.io/${_GCP_PROJECT}-staging/gateway.${_SERVICE} --platform=managed --memory=${_MEMORY} --allow-unauthenticated --project=${_GCP_PROJECT}-staging --region=${_GCP_REGION} --set-env-vars=NODE_ENV=staging,INTERNAL_NETWORK=${_INTERNAL_NETWORK},NETWORK=${_NETWORK},SERVICE=${_SERVICE},GCP_PROJECT=${_GCP_PROJECT},GCP_REGION=${_GCP_REGION}"
+        "gcloud beta run deploy gateway --image=us.gcr.io/${_GCP_PROJECT}-staging/gateway --platform=managed --memory=${_MEMORY} --allow-unauthenticated --project=${_GCP_PROJECT}-staging --region=${_GCP_REGION} --set-env-vars=NODE_ENV=staging,NETWORK=staging.${_NETWORK},SERVICE=${_SERVICE},GCP_PROJECT=${_GCP_PROJECT},GCP_REGION=${_GCP_REGION}"
       ]
     },
     {
@@ -70,7 +66,7 @@
       "entrypoint": "bash",
       "args": [
         "-c",
-        "gcloud beta run domain-mappings create --platform=managed --service=${_SERVICE}-gateway --domain=${_SERVICE}.staging.${_NETWORK} --project=${_GCP_PROJECT}-staging --region=${_GCP_REGION} || exit 0"
+        "gcloud beta run domain-mappings create --platform=managed --service=gateway --domain=${_SERVICE}.staging.${_NETWORK} --project=${_GCP_PROJECT}-staging --region=${_GCP_REGION} || exit 0"
       ]
     },
     {
@@ -104,23 +100,20 @@
       "entrypoint": "bash",
       "args": [
         "-c",
-        "docker build -t us.gcr.io/${_GCP_PROJECT}-sandbox/gateway.${_SERVICE} ."
+        "docker build -t us.gcr.io/${_GCP_PROJECT}-sandbox/gateway ."
       ]
     },
     {
       "name": "gcr.io/cloud-builders/docker",
       "entrypoint": "bash",
-      "args": [
-        "-c",
-        "docker push us.gcr.io/${_GCP_PROJECT}-sandbox/gateway.${_SERVICE}"
-      ]
+      "args": ["-c", "docker push us.gcr.io/${_GCP_PROJECT}-sandbox/gateway"]
     },
     {
       "name": "gcr.io/cloud-builders/gcloud",
       "entrypoint": "bash",
       "args": [
         "-c",
-        "gcloud beta run deploy ${_SERVICE}-gateway --image=us.gcr.io/${_GCP_PROJECT}-sandbox/gateway.${_SERVICE} --platform=managed --memory=${_MEMORY} --allow-unauthenticated --project=${_GCP_PROJECT}-sandbox --region=${_GCP_REGION} --set-env-vars=NODE_ENV=sandbox,INTERNAL_NETWORK=${_INTERNAL_NETWORK},NETWORK=${_NETWORK},SERVICE=${_SERVICE},GCP_PROJECT=${_GCP_PROJECT},GCP_REGION=${_GCP_REGION}"
+        "gcloud beta run deploy ${_SERVICE}-gateway --image=us.gcr.io/${_GCP_PROJECT}-sandbox/gateway --platform=managed --memory=${_MEMORY} --allow-unauthenticated --project=${_GCP_PROJECT}-sandbox --region=${_GCP_REGION} --set-env-vars=NODE_ENV=sandbox,NETWORK=sandbox.${_NETWORK},SERVICE=${_SERVICE},GCP_PROJECT=${_GCP_PROJECT},GCP_REGION=${_GCP_REGION}"
       ]
     },
     {
@@ -160,7 +153,7 @@
       "entrypoint": "bash",
       "args": [
         "-c",
-        "gcloud beta run domain-mappings create --platform=managed --service=${_SERVICE}-gateway --domain=${_SERVICE}.sandbox.${_NETWORK} --project=${_GCP_PROJECT}-sandbox --region=${_GCP_REGION} || exit 0"
+        "gcloud beta run domain-mappings create --platform=managed --service=gateway --domain=${_SERVICE}.sandbox.${_NETWORK} --project=${_GCP_PROJECT}-sandbox --region=${_GCP_REGION} || exit 0"
       ]
     },
     {
