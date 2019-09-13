@@ -1,4 +1,5 @@
 const express = require("express");
+const asyncHandler = require("express-async-handler");
 const app = express();
 
 const authorize = require("@sustainers/authorize");
@@ -11,40 +12,47 @@ const middleware = require("@sustainers/middleware");
 
 const cors = require("./src/cors");
 
+const asyncMiddleware = fn => (req, res, next) => {
+  Promise.resolve(fn(req, res, next)).catch(next);
+};
+
 cors(app);
 middleware(app);
 
-app.post("/command/:domain/:action", async (req, res) => {
-  logger.info("Request: ", {
-    params: req.params,
-    body: req.body,
-    query: req.query,
-    headers: req.headers
-  });
+app.post(
+  "/command/:domain/:action",
+  asyncHandler(async (req, res) => {
+    logger.info("Request: ", {
+      params: req.params,
+      body: req.body,
+      query: req.query,
+      headers: req.headers
+    });
 
-  const context = await authorize({
-    req,
-    verifyFn: kms.verify,
-    scopesLookupFn: () => [],
-    domain: req.params.domain,
-    requiresToken: false
-  });
-  logger.info("context: ", { context });
-  await validateCommand(req.body);
-  await cleanCommand(req.body);
-  const response = await issueCommand({
-    action: req.params.action,
-    domain: req.params.domain,
-    service: process.env.SERVICE,
-    network: process.env.NETWORK
+    const context = await authorize({
+      req,
+      verifyFn: kms.verify,
+      scopesLookupFn: () => [],
+      domain: req.params.domain,
+      requiresToken: false
+    });
+    logger.info("context: ", { context });
+    await validateCommand(req.body);
+    await cleanCommand(req.body);
+    const response = await issueCommand({
+      action: req.params.action,
+      domain: req.params.domain,
+      service: process.env.SERVICE,
+      network: process.env.NETWORK
+    })
+      .with(req.body.payload, req.body.header)
+      .in(context);
+    logger.info("response: ", { response });
+    res.send(response);
   })
-    .with(req.body.payload, req.body.header)
-    .in(context);
-  logger.info("response: ", { response });
-  res.send(response);
-});
+);
 
-app.post("/create.service", (req, res) => {
+app.post("/create.service", (req, res, next) => {
   logger.info("Request: ", {
     params: req.params,
     body: req.body,
@@ -57,9 +65,11 @@ app.post("/create.service", (req, res) => {
   });
 });
 
-app.use((err, req, res, next) => {
+//Handle errors.
+app.use((err, _, res, next) => {
+  if (res.headersSent) return next(err);
   logger.error("An error occured: ", { err, stack: err.stack });
-  res.status(500).send("Something broke!");
+  res.status(500).send(err);
 });
 
 module.exports = app;
