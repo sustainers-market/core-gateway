@@ -57,4 +57,9 @@ app.post("/create.service", (req, res) => {
   });
 });
 
+app.use((err, req, res, next) => {
+  logger.error("An error occured: ", { err, stack: err.stack });
+  res.status(500).send("Something broke!");
+});
+
 module.exports = app;
