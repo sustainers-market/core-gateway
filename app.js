@@ -9,7 +9,7 @@ const corsMiddleware = require("@sustainers/cors-middleware");
 const expressMiddleware = require("@sustainers/express-middleware");
 const authenticationMiddleware = require("@sustainers/authentication-middleware");
 const authorizationMiddleware = require("@sustainers/authorization-middleware");
-const errorMiddleware = require("@sustainers/authorization-middleware");
+const errorMiddleware = require("@sustainers/error-middleware");
 
 const app = express();
 
