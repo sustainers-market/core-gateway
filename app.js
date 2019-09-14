@@ -13,10 +13,14 @@ const errorMiddleware = require("@sustainers/authorization-middleware");
 
 const app = express();
 
+logger.info("app 0: ", { app });
 expressMiddleware(app);
+
+logger.info("app 1: ", { app });
+
 corsMiddleware(app);
 
-logger.info("app: ", { app });
+logger.info("app 2: ", { app });
 
 app.post(
   "/command/:domain/:action",
