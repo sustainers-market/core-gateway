@@ -1,6 +1,5 @@
 const express = require("express");
 const asyncHandler = require("express-async-handler");
-const app = express();
 
 const validateCommand = require("@sustainers/validate-command");
 const cleanCommand = require("@sustainers/clean-command");
@@ -11,6 +10,8 @@ const expressMiddleware = require("@sustainers/express-middleware");
 const authenticationMiddleware = require("@sustainers/authentication-middleware");
 const authorizationMiddleware = require("@sustainers/authorization-middleware");
 const errorMiddleware = require("@sustainers/authorization-middleware");
+
+const app = express();
 
 expressMiddleware(app);
 corsMiddleware(app);
@@ -24,7 +25,8 @@ app.post(
       params: req.params,
       body: req.body,
       query: req.query,
-      headers: req.headers
+      headers: req.headers,
+      cookies: req.cookies
     });
 
     logger.info("context: ", { context: req.context });
@@ -48,7 +50,25 @@ app.post("/create.service", (req, res) => {
     params: req.params,
     body: req.body,
     query: req.query,
-    headers: req.headers
+    headers: req.headers,
+    cookies: req.cookies
+  });
+  res
+    .cookie(
+      "token",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+      { maxAge: 86400, httpOnly: true, secure: true }
+    )
+    .send();
+});
+
+app.post("/token", (req, res) => {
+  logger.info("Request: ", {
+    params: req.params,
+    body: req.body,
+    query: req.query,
+    headers: req.headers,
+    cookies: req.cookies
   });
   res
     .cookie(
