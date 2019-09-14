@@ -13,14 +13,8 @@ const errorMiddleware = require("@sustainers/error-middleware");
 
 const app = express();
 
-logger.info("app 0: ", { app });
 expressMiddleware(app);
-
-logger.info("app 1: ", { app });
-
 corsMiddleware(app);
-
-logger.info("app 2: ", { app });
 
 app.post(
   "/command/:domain/:action",
@@ -91,5 +85,4 @@ app.post("/token", (req, res) => {
 
 app.use(errorMiddleware);
 
-logger.info("last app: ", { app });
 module.exports = app;
