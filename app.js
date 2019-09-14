@@ -2,22 +2,23 @@ const express = require("express");
 const asyncHandler = require("express-async-handler");
 const app = express();
 
-const authorize = require("@sustainers/authorize");
 const validateCommand = require("@sustainers/validate-command");
 const cleanCommand = require("@sustainers/clean-command");
-const kms = require("@sustainers/kms");
 const issueCommand = require("@sustainers/issue-command-js");
 const logger = require("@sustainers/logger");
-const middleware = require("@sustainers/middleware");
+const corsMiddleware = require("@sustainers/cors-middleware");
+const expressMiddleware = require("@sustainers/express-middleware");
+const authenticationMiddleware = require("@sustainers/authentication-middleware");
+const authorizationMiddleware = require("@sustainers/authorization-middleware");
+const errorMiddleware = require("@sustainers/authorization-middleware");
 
-const cors = require("./src/cors");
-const errorHandler = require("./src/error_handler");
-
-cors(app);
-middleware(app);
+expressMiddleware(app);
+corsMiddleware(app);
 
 app.post(
   "/command/:domain/:action",
+  authenticationMiddleware,
+  authorizationMiddleware,
   asyncHandler(async (req, res) => {
     logger.info("Request: ", {
       params: req.params,
@@ -26,14 +27,7 @@ app.post(
       headers: req.headers
     });
 
-    const context = await authorize({
-      req,
-      verifyFn: kms.verify,
-      scopesLookupFn: () => [],
-      domain: req.params.domain,
-      requiresToken: false
-    });
-    logger.info("context: ", { context });
+    logger.info("context: ", { context: req.context });
     await validateCommand(req.body);
     await cleanCommand(req.body);
     const response = await issueCommand({
@@ -56,12 +50,15 @@ app.post("/create.service", (req, res) => {
     query: req.query,
     headers: req.headers
   });
-  res.send({
-    token:
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
-  });
+  res
+    .cookie(
+      "token",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+      { maxAge: 86400, httpOnly: true, secure: true }
+    )
+    .send();
 });
 
-errorHandler(app);
+app.use(errorMiddleware);
 
 module.exports = app;
