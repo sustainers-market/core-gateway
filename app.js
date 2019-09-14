@@ -16,6 +16,8 @@ const app = express();
 expressMiddleware(app);
 corsMiddleware(app);
 
+logger.info("app: ", { app });
+
 app.post(
   "/command/:domain/:action",
   authenticationMiddleware,
@@ -45,22 +47,26 @@ app.post(
   })
 );
 
-app.post("/create.service", (req, res) => {
-  logger.info("Request: ", {
-    params: req.params,
-    body: req.body,
-    query: req.query,
-    headers: req.headers,
-    cookies: req.cookies
-  });
-  res
-    .cookie(
-      "token",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
-      { maxAge: 86400, httpOnly: true, secure: true }
-    )
-    .send();
-});
+app.post(
+  "/create.service",
+  asyncHandler((req, res) => {
+    logger.info("Request: ", {
+      params: req.params,
+      body: req.body,
+      query: req.query,
+      headers: req.headers,
+      cookies: req.cookies
+    });
+    res
+      .status(200)
+      .cookie(
+        "token",
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+        { maxAge: 86400, httpOnly: true, secure: true }
+      )
+      .send();
+  })
+);
 
 app.post("/token", (req, res) => {
   logger.info("Request: ", {
