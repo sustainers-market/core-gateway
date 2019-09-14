@@ -91,4 +91,5 @@ app.post("/token", (req, res) => {
 
 app.use(errorMiddleware);
 
+logger.info("last app: ", { app });
 module.exports = app;
