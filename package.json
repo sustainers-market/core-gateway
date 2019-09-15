@@ -8,6 +8,7 @@
     "@sustainers/cors-middleware": "*",
     "@sustainers/error-middleware": "*",
     "@sustainers/express-middleware": "*",
+    "@sustainers/gcp-token": "*",
     "@sustainers/issue-command-js": "*",
     "@sustainers/logger": "*",
     "@sustainers/validate-command": "*",

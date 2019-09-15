@@ -10,14 +10,15 @@ const expressMiddleware = require("@sustainers/express-middleware");
 const authenticationMiddleware = require("@sustainers/authentication-middleware");
 const authorizationMiddleware = require("@sustainers/authorization-middleware");
 const errorMiddleware = require("@sustainers/error-middleware");
+const gcpToken = require("@sustainers/gcp-token");
 
 const app = express();
 
 const whitelist = [
   "127.0.0.1",
+  "http://127.0.0.1:4200",
   "http://0.0.0.0:4200",
-  "sustainers.market",
-  "*.sustainers.market"
+  "https://sustainers.market"
 ];
 
 expressMiddleware(app);
@@ -41,14 +42,20 @@ app.post(
     logger.info("context: ", { context: req.context });
     await validateCommand(req.body);
     await cleanCommand(req.body);
+
     const response = await issueCommand({
       action: req.params.action,
       domain: req.params.domain,
       service: process.env.SERVICE,
       network: process.env.NETWORK
     })
-      .with(req.body.payload, req.body.header)
+      .with({
+        payload: req.body.payload,
+        headers: req.body.headers,
+        tokenFn: gcpToken
+      })
       .in(context);
+
     logger.info("response: ", { response });
     res.send(response);
   })
