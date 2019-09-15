@@ -2,17 +2,17 @@
   "name": "@sustainer-network/core-gateway",
   "version": "0.0.0",
   "dependencies": {
-    "express": "^4.17.1",
-    "express-async-handler": "^1.1.4",
-    "@sustainers/logger": "*",
-    "@sustainers/issue-command-js": "*",
-    "@sustainers/validate-command": "*",
-    "@sustainers/clean-command": "*",
-    "@sustainers/express-middleware": "*",
-    "@sustainers/cors-middleware": "*",
-    "@sustainers/authorization-middleware": "*",
     "@sustainers/authentication-middleware": "*",
-    "@sustainers/error-middleware": "*"
+    "@sustainers/authorization-middleware": "0.0.2",
+    "@sustainers/clean-command": "*",
+    "@sustainers/cors-middleware": "0.0.5",
+    "@sustainers/error-middleware": "0.0.2",
+    "@sustainers/express-middleware": "0.0.3",
+    "@sustainers/issue-command-js": "*",
+    "@sustainers/logger": "*",
+    "@sustainers/validate-command": "*",
+    "express": "^4.17.1",
+    "express-async-handler": "^1.1.4"
   },
   "main": "index.js",
   "scripts": {
