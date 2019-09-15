@@ -13,8 +13,17 @@ const errorMiddleware = require("@sustainers/error-middleware");
 
 const app = express();
 
+const whitelist = [
+  "127.0.0.1",
+  "http://0.0.0.0:4200",
+  "sustainers.market",
+  "*.sustainers.market"
+];
+
 expressMiddleware(app);
-corsMiddleware(app);
+
+logger.info("app: ", { app });
+corsMiddleware({ app, whitelist, credentials: true });
 
 app.post(
   "/command/:domain/:action",
@@ -49,20 +58,24 @@ app.post(
   "/create.service",
   asyncHandler((req, res) => {
     logger.info("Request: ", {
+      host: req.hostname,
       params: req.params,
       body: req.body,
       query: req.query,
       headers: req.headers,
       cookies: req.cookies
     });
+
     res
-      .status(200)
       .cookie(
         "token",
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
-        { maxAge: 86400000, httpOnly: true, secure: true }
+        {
+          httpOnly: true,
+          secure: process.env.NODE_ENV != "local"
+        }
       )
-      .send("🥑");
+      .send({ heY: "boi" });
   })
 );
 
