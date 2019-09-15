@@ -5,6 +5,10 @@
     "_GCP_PROJECT": "smn-core",
     "_GCP_REGION": "us-central1",
     "_GCP_DNS_ZONE": "network",
+    "_GCP_KMS_KEY_RING": "core",
+    "_GCP_KMS_KEY": "auth",
+    "_GCP_KMS_KEY_LOCATION": "global",
+    "_GCP_KMS_KEY_VERSION": "1",
     "_MEMORY": "128Mi"
   },
   "steps": [
@@ -26,7 +30,7 @@
       "entrypoint": "bash",
       "args": [
         "-c",
-        "gcloud beta run deploy gateway --image=us.gcr.io/${_GCP_PROJECT}-staging/gateway --platform=managed --memory=${_MEMORY} --allow-unauthenticated --project=${_GCP_PROJECT}-staging --region=${_GCP_REGION} --set-env-vars=NODE_ENV=staging,NETWORK=staging.${_NETWORK},SERVICE=${_SERVICE},GCP_PROJECT=${_GCP_PROJECT},GCP_REGION=${_GCP_REGION}"
+        "gcloud beta run deploy gateway --image=us.gcr.io/${_GCP_PROJECT}-staging/gateway --platform=managed --memory=${_MEMORY} --allow-unauthenticated --project=${_GCP_PROJECT}-staging --region=${_GCP_REGION} --set-env-vars=NODE_ENV=staging,NETWORK=staging.${_NETWORK},SERVICE=${_SERVICE},GCP_PROJECT=${_GCP_PROJECT},GCP_REGION=${_GCP_REGION},GCP_KMS_KEY_RING=${_GCP_KMS_KEY_RING},GCP_KMS_KEY=${_GCP_KMS_KEY},GCP_KMS_KEY_LOCATION=${_GCP_KMS_KEY_LOCATION},GCP_KMS_KEY_VERSION=${_GCP_KMS_KEY_VERSION}"
       ]
     },
     {
@@ -110,7 +114,7 @@
       "entrypoint": "bash",
       "args": [
         "-c",
-        "gcloud beta run deploy gateway --image=us.gcr.io/${_GCP_PROJECT}/gateway --platform=managed --memory=${_MEMORY} --allow-unauthenticated --project=${_GCP_PROJECT} --region=${_GCP_REGION} --set-env-vars=NODE_ENV=sandbox,NETWORK=${_NETWORK},SERVICE=${_SERVICE},GCP_PROJECT=${_GCP_PROJECT},GCP_REGION=${_GCP_REGION}"
+        "gcloud beta run deploy gateway --image=us.gcr.io/${_GCP_PROJECT}/gateway --platform=managed --memory=${_MEMORY} --allow-unauthenticated --project=${_GCP_PROJECT} --region=${_GCP_REGION} --set-env-vars=NODE_ENV=sandbox,NETWORK=${_NETWORK},SERVICE=${_SERVICE},GCP_PROJECT=${_GCP_PROJECT},GCP_REGION=${_GCP_REGION},GCP_KMS_KEY_RING=${_GCP_KMS_KEY_RING},GCP_KMS_KEY=${_GCP_KMS_KEY},GCP_KMS_KEY_LOCATION=${_GCP_KMS_KEY_LOCATION},GCP_KMS_KEY_VERSION=${_GCP_KMS_KEY_VERSION}"
       ]
     },
     {

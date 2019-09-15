@@ -23,13 +23,24 @@ const whitelist = [
 
 expressMiddleware(app);
 
-logger.info("app: ", { app });
 corsMiddleware({ app, whitelist, credentials: true });
 
 app.post(
   "/command/:domain/:action",
+  function(req, res, next) {
+    logger.info("TOO");
+    return next();
+  },
   authenticationMiddleware,
+  function(req, res, next) {
+    logger.info("WOO");
+    return next();
+  },
   authorizationMiddleware,
+  function(req, res, next) {
+    logger.info("HOO");
+    return next();
+  },
   asyncHandler(async (req, res) => {
     logger.info("Request: ", {
       params: req.params,
