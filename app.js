@@ -8,7 +8,7 @@ const logger = require("@sustainers/logger");
 const corsMiddleware = require("@sustainers/cors-middleware");
 const expressMiddleware = require("@sustainers/express-middleware");
 const authenticationMiddleware = require("@sustainers/authentication-middleware");
-const authorizationMiddleware = require("@sustainers/authorization-middleware");
+// const authorizationMiddleware = require("@sustainers/authorization-middleware");
 const errorMiddleware = require("@sustainers/error-middleware");
 const gcpToken = require("@sustainers/gcp-token");
 
@@ -36,11 +36,11 @@ app.post(
     logger.info("WOO");
     return next();
   },
-  authorizationMiddleware,
-  function(req, res, next) {
-    logger.info("HOO");
-    return next();
-  },
+  // authorizationMiddleware,
+  // function(req, res, next) {
+  //   logger.info("HOO");
+  //   return next();
+  // },
   asyncHandler(async (req, res) => {
     logger.info("Request: ", {
       params: req.params,
@@ -65,7 +65,7 @@ app.post(
         headers: req.body.headers,
         tokenFn: gcpToken
       })
-      .in(context);
+      .in(req.context);
 
     logger.info("response: ", { response });
     res.send(response);
