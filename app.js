@@ -4,6 +4,7 @@ const asyncHandler = require("express-async-handler");
 const validateCommand = require("@sustainers/validate-command");
 const cleanCommand = require("@sustainers/clean-command");
 const issueCommand = require("@sustainers/issue-command-js");
+const getViews = require("@sustainers/get-views-js");
 const logger = require("@sustainers/logger");
 const corsMiddleware = require("@sustainers/cors-middleware");
 const expressMiddleware = require("@sustainers/express-middleware");
@@ -22,26 +23,27 @@ const whitelist = [
 ];
 
 expressMiddleware(app);
-
 corsMiddleware({ app, whitelist, credentials: true });
+
+app.use((req, _, next) => {
+  logger.info("Request: ", {
+    params: req.params,
+    body: req.body,
+    query: req.query,
+    headers: req.headers,
+    cookies: req.cookies
+  });
+  next();
+});
 
 app.post(
   "/command/:domain/:action",
   authenticationMiddleware,
   // authorizationMiddleware,
   asyncHandler(async (req, res) => {
-    logger.info("Request: ", {
-      params: req.params,
-      body: req.body,
-      query: req.query,
-      headers: req.headers,
-      cookies: req.cookies
-    });
-
     logger.info("context: ", { context: req.context });
     await validateCommand(req.body);
     await cleanCommand(req.body);
-
     const response = await issueCommand({
       action: req.params.action,
       domain: req.params.domain,
@@ -60,18 +62,32 @@ app.post(
   })
 );
 
+app.get(
+  "/view/:domain/:id",
+  authenticationMiddleware,
+  // authorizationMiddleware,
+  asyncHandler(async (req, res) => {
+    logger.info("context: ", { context: req.context });
+    const response = await getViews({
+      id: req.params.id,
+      domain: req.params.domain,
+      service: process.env.SERVICE,
+      network: process.env.NETWORK
+    })
+      .with({
+        query: req.query,
+        tokenFn: gcpToken
+      })
+      .in(req.context);
+
+    logger.info("response: ", { response });
+    res.send(response);
+  })
+);
+
 app.post(
   "/create.service",
   asyncHandler((req, res) => {
-    logger.info("Request: ", {
-      host: req.hostname,
-      params: req.params,
-      body: req.body,
-      query: req.query,
-      headers: req.headers,
-      cookies: req.cookies
-    });
-
     res
       .cookie(
         "token",
@@ -84,23 +100,6 @@ app.post(
       .send({ heY: "boi" });
   })
 );
-
-app.post("/token", (req, res) => {
-  logger.info("Request: ", {
-    params: req.params,
-    body: req.body,
-    query: req.query,
-    headers: req.headers,
-    cookies: req.cookies
-  });
-  res
-    .cookie(
-      "token",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
-      { maxAge: 86400, httpOnly: true, secure: true }
-    )
-    .send();
-});
 
 app.use(errorMiddleware);
 
