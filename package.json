@@ -10,7 +10,7 @@
     "@sustainers/express-middleware": "*",
     "@sustainers/gcp-token": "*",
     "@sustainers/command-js": "*",
-    "@sustainers/get-views-js": "*",
+    "@sustainers/view-store-js": "*",
     "@sustainers/logger": "*",
     "@sustainers/validate-command": "*",
     "express": "^4.17.1",

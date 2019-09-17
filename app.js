@@ -4,7 +4,7 @@ const asyncHandler = require("express-async-handler");
 const validateCommand = require("@sustainers/validate-command");
 const cleanCommand = require("@sustainers/clean-command");
 const command = require("@sustainers/command-js");
-const getViews = require("@sustainers/get-views-js");
+const viewStore = require("@sustainers/view-store-js");
 const logger = require("@sustainers/logger");
 const corsMiddleware = require("@sustainers/cors-middleware");
 const expressMiddleware = require("@sustainers/express-middleware");
@@ -54,13 +54,13 @@ app.get(
   // authorizationMiddleware,
   asyncHandler(async (req, res) => {
     logger.info("context: ", { context: req.context });
-    const response = await getViews({
+    const response = await viewStore({
       id: req.params.id,
       domain: req.params.domain,
       service: process.env.SERVICE,
       network: process.env.NETWORK
     })
-      .for(req.query)
+      .read(req.query)
       .in(req.context)
       .with(gcpToken);
 
