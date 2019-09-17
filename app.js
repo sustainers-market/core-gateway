@@ -3,7 +3,7 @@ const asyncHandler = require("express-async-handler");
 
 const validateCommand = require("@sustainers/validate-command");
 const cleanCommand = require("@sustainers/clean-command");
-const issueCommand = require("@sustainers/issue-command-js");
+const command = require("@sustainers/command-js");
 const getViews = require("@sustainers/get-views-js");
 const logger = require("@sustainers/logger");
 const corsMiddleware = require("@sustainers/cors-middleware");
@@ -25,17 +25,6 @@ const whitelist = [
 expressMiddleware(app);
 corsMiddleware({ app, whitelist, credentials: true });
 
-app.use((req, _, next) => {
-  logger.info("Request: ", {
-    params: req.params,
-    body: req.body,
-    query: req.query,
-    headers: req.headers,
-    cookies: req.cookies
-  });
-  next();
-});
-
 app.post(
   "/command/:domain/:action",
   authenticationMiddleware,
@@ -44,18 +33,15 @@ app.post(
     logger.info("context: ", { context: req.context });
     await validateCommand(req.body);
     await cleanCommand(req.body);
-    const response = await issueCommand({
+    const response = await command({
       action: req.params.action,
       domain: req.params.domain,
       service: process.env.SERVICE,
       network: process.env.NETWORK
     })
-      .with({
-        payload: req.body.payload,
-        headers: req.body.headers,
-        tokenFn: gcpToken
-      })
-      .in(req.context);
+      .issue(req.body.payload, req.body.headers)
+      .in(req.context)
+      .with(gcpToken);
 
     logger.info("response: ", { response });
     res.send(response);
@@ -74,11 +60,9 @@ app.get(
       service: process.env.SERVICE,
       network: process.env.NETWORK
     })
-      .with({
-        query: req.query,
-        tokenFn: gcpToken
-      })
-      .in(req.context);
+      .for(req.query)
+      .in(req.context)
+      .with(gcpToken);
 
     logger.info("response: ", { response });
     res.send(response);

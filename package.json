@@ -9,7 +9,7 @@
     "@sustainers/error-middleware": "*",
     "@sustainers/express-middleware": "*",
     "@sustainers/gcp-token": "*",
-    "@sustainers/issue-command-js": "*",
+    "@sustainers/command-js": "*",
     "@sustainers/get-views-js": "*",
     "@sustainers/logger": "*",
     "@sustainers/validate-command": "*",
